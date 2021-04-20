@@ -4,12 +4,16 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import "tailwindcss/tailwind.css";
+import HelloWorld from './components/HelloWorld.vue';
 
 export default {
   name: 'App',
   components: {
     HelloWorld
+  },
+  created() {
+    fetch('api/test.php').then(x => x.text()).then(console.log);
   }
 }
 </script>
