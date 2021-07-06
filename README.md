@@ -31,3 +31,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 1. [Build server commands (CI)](https://docs.github.com/en/actions/learn-github-actions/introduction-to-github-actions)
 1. Test-driven development
 1. ['Testing Vue Applications' by Edd Yerbeugh](https://www.manning.com/books/testing-vue-js-applications)
+1. [Testing with a real screen reader](https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Cross_browser_testing/Accessibility#screenreaders)
