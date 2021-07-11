@@ -32,4 +32,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 1. Test-driven development
 1. ['Testing Vue Applications' by Edd Yerbeugh](https://www.manning.com/books/testing-vue-js-applications)
 1. [Testing with a real screen reader](https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Cross_browser_testing/Accessibility#screenreaders)
-1. Storing PHP securly in the repo. Plan: 1. Store PHP files in /public/ folder, allowing for upload in repo 2. Store sensitive database information (credentials) in config files outside of server endpoint (/www/) 3. Access sensitive information in config files through PHP 4. Maybe write some kind of test to ensure that no sensitive information is stored in PHP files?
+1. Storing PHP securely in the repo. Plan: 1. Store PHP files in /public/ folder, allowing for upload in repo 2. Store sensitive database information (credentials) in config files outside of server endpoint (/www/) 3. Access sensitive information in config files through PHP 4. Maybe write some kind of test to ensure that no sensitive information is stored in PHP files?
