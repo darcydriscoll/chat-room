@@ -1,5 +1,7 @@
 // vue.config.js
 
+const path = require('path');
+
 /**
  * @type {import('@vue/cli-service').ProjectOptions}
  */
@@ -13,6 +15,8 @@ module.exports = {
         target: 'http://localhost',
         changeOrigin: true, // for CORS
       }
-    }
-  }
+    },
+  },
+
+  outputDir: 'C:/xampp/htdocs',
 };
