@@ -3,6 +3,7 @@ node_modules
 /dist
 
 vue.config.js
+public/api/login.php
 
 # local env files
 .env.local

@@ -1,6 +1,7 @@
 // vue.config.js
 
 const path = require('path');
+const fse = require('fs-extra');
 
 /**
  * @type {import('@vue/cli-service').ProjectOptions}
@@ -15,6 +16,16 @@ module.exports = {
         target: 'http://localhost',
         changeOrigin: true, // for CORS
       }
+    },
+    after: function (app, server, compiler) {
+      fse.emptyDirSync('C:/xampp/htdocs/api');
+      fse.copySync('C:/Users/Darcy/Documents/School and Backup/Files/Projects/Programming/chat-room/public/api',
+                   'C:/xampp/htdocs/api');
+    },
+    watchContentBase: true,
+    writeToDisk: (filePath) => {
+      console.log(filePath);
+      return /htdocs\\api/.test(filePath);
     },
   },
 
