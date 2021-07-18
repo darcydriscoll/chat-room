@@ -5,12 +5,13 @@
    * @author Darcy Driscoll <darcy.driscoll@outlook.com>
    */
 
-  require_once 'database_func.php';
+  require_once 'user.php';
+  require_once 'php_session.php';
+  require_once 'mysql_db.php';
 
   // sign in
   if (!empty($_POST['nickname'])) {
-    $db = new DB;
-    $user = new User($db);
+    $user = new User();
     if ($user->sign_in($_POST['nickname'])) {
       echo 'true';
     } else {
