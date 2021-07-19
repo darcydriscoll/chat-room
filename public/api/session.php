@@ -1,20 +1,28 @@
 <?php
-  /*
-   * Adapted from
+  /**
+   * Classes representing session handling.
+   *
+   * Registers + proxies used here to allow for mocking during unit testing.
+   * Register + proxies pattern adapted from:
    * https://www.sitepoint.com/community/t/phpunit-testing-cookies-and-sessions/36557/2
+   *
+   * @author Darcy Driscoll <darcy.driscoll@outlook.com>
    */
 
   /**
    * A register (?) that interfaces with a given session proxy.
    *
-   * The class uses only static variables and methods, because there is only
-   * ever one session at a given time. To access, use SessionProxy::X.
+   * Uses method signatures from the Session interface. We don't implement the
+   * Session interface because we want our methods here to be static.
    */
   class SessionRegister {
     private static $session;
 
     /**
      * Initialise the register.
+     *
+     * @param Session $s The session proxy with which we want to initialise
+     *                   the register.
      */
     public static function init(Session $s) {
       self::$session = $s;
@@ -38,9 +46,31 @@
   }
 
   interface Session {
+    /**
+     * Get the value of a var from the session variables.
+     *
+     * @param string|int $var Var name.
+     *
+     * @return mixed Var value
+     */
     public function get($var);
+
+    /**
+     * Set $var in session variables to $value.
+     *
+     * @param string|int $var Var name.
+     * @param mixed $value Var value.
+     */
     public function set($var, $value);
+
+    /**
+     * Start the session.
+     */
     public function start();
+
+    /**
+     * Close the session and save changes.
+     */
     public function write_close();
   }
 

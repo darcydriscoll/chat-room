@@ -9,6 +9,20 @@
   require_once 'session.php';
   require_once 'db.php';
 
+  define('NICK_INVALID', 0);
+  define('NICK_INSERTFAIL', 1);
+  define('NICK_SIGNEDIN', 2);
+
+  class BoolMsg {
+    public $bool;
+    public $msg;
+
+    public function __construct($bool, $msg) {
+      $this->bool = $bool;
+      $this->msg = $msg;
+    }
+  }
+
   /**
    * Represents and manages an account in the database.
    */
@@ -82,6 +96,11 @@
       return false;
     }
 
+    /**
+     * Returns whether the user is signed in.
+     *
+     * @return bool True if signed in, false if not.
+     */
     public function is_signed_in() {
       return !is_null(SessionRegister::get('nickname'));
     }
@@ -96,20 +115,20 @@
     public function sign_in($nickname) {
       // have we already signed in?
       if ($this->is_signed_in()) {
-        return true;
+        //return new BoolMsg(true, NICK_SIGNEDIN);
       }
-      $nickname = StringFunc::sanitise_string($nickname);
       // does nickname meet reqs?
       if (!$this->is_nickname_valid($nickname)) {
-        return false;
+        return new BoolMsg(false, NICK_INVALID);
       }
+      $nickname = StringFunc::sanitise_string($nickname);
       // try adding nickname
       if (!$this->add_nickname($nickname)) {
-        return false;
+        return new BoolMsg(false, NICK_INSERTFAIL);
       }
       // add nickname
       SessionRegister::set('nickname', $nickname);
-      return true;
+      return new BoolMsg(true, null);
     }
   }
 

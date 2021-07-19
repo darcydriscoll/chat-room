@@ -5,6 +5,9 @@
    * @author Darcy Driscoll <darcy.driscoll@outlook.com>
    */
 
+  /**
+   * Holds all string manipulation functions.
+   */
   class StringFunc {
     /**
      * Sanitise a given string for safe use.

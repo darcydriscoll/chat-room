@@ -35,6 +35,8 @@
       $this->assertSame(false, $user->is_nickname_valid("abcÄ Ägh"));
       // valid length, pound symbol
       $this->assertSame(true, $user->is_nickname_valid("abc£"));
+      // valid, looks like html
+      $this->assertSame(true, $user->is_nickname_valid("<p>hello</p>"));
     }
   }
 

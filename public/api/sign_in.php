@@ -12,10 +12,11 @@
   // sign in
   if (!empty($_POST['nickname'])) {
     $user = new User();
-    if ($user->sign_in($_POST['nickname'])) {
-      echo 'true';
+    $sign_in = $user->sign_in($_POST['nickname']);
+    if ($sign_in->bool) {
+      echo 'true: ' . $user->get_nickname();
     } else {
-      echo 'false';
+      echo 'false: ' . $sign_in->msg;
     }
   } else {
     echo 'false';

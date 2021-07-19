@@ -1,10 +1,30 @@
 <?php
+  /**
+   * Classes representing the database.
+   *
+   * We use registers and proxies here to allow for mocking during unit
+   * testing.
+   * Register + proxies pattern adapted from:
+   * https://www.sitepoint.com/community/t/phpunit-testing-cookies-and-sessions/36557/2
+   *
+   * @author Darcy Driscoll <darcy.driscoll@outlook.com>
+   */
 
+  /**
+   * Register (?) that interfaces with a given database proxy.
+   *
+   * Uses method signatures from the DB interface. We don't implement the DB
+   * interface because we want our methods here to be static.
+   *
+   */
   class DBRegister {
-    private static $db;
+    private static DB $db;
 
     /**
      * Initialise the register.
+     *
+     * @param DB $db The database proxy with which we want to initialise the
+     *               register
      */
     public static function init(DB $db) {
       self::$db = $db;
@@ -23,9 +43,38 @@
     }
   }
 
+  /**
+   * The interface that all database proxies implement.
+   */
   interface DB {
+
+    /**
+     * Connect to the database proxy.
+     *
+     * TODO - Should this be a private method? Doesn't make much sense for
+     * MemoryDB.
+     *
+     * @return mixed
+     */
     public function connect();
+
+    /**
+     * Counts how many nicknames in the DB proxy are equal to $nickname.
+     *
+     * @param string $nickname The nickname we want to check.
+     *
+     * @return int The number of nicknames in the DB proxy that are
+     *             equal to $nickname.
+     */
     public function count_same_nicknames($nickname);
+
+    /**
+     * Try inserting $nickname into the DB proxy.
+     *
+     * @param string $nickname The nickname we want to enter.
+     *
+     * @return bool True on success, false on failure.
+     */
     public function insert_nickname($nickname);
   }
 
@@ -43,11 +92,6 @@
       $this->close();
     }
 
-    /**
-     * Connect to the database.
-     *
-     * @return mysqli
-     */
     public function connect() {
       if (!isset($this->conn)) {
         require_once 'login.php';
@@ -61,6 +105,8 @@
 
     /**
      * Close the connection with the database.
+     *
+     * @return bool Returns true on success, false on failure.
      */
     public function close() {
       return $this->conn->close();
@@ -86,15 +132,8 @@
       return $stmt;
     }
 
-    /**
-     * Return the number of nicknames equal to $nickname.
-     *
-     * @param string $nickname The nickname we want to check against.
-     *
-     * @return int The number of equal nicknames.
-     */
     public function count_same_nicknames($nickname) {
-      $result = $this->db->prep_exec(
+      $result = $this->prep_exec(
         'SELECT COUNT(nickname) FROM accounts WHERE nickname = ?',
         's', [$nickname])->get_result();
       $count = $result->fetch_row()[0];
@@ -102,15 +141,8 @@
       return $count;
     }
 
-    /**
-     * Try inserting the given nickname into the database.
-     *
-     * @param string $nickname The nickname we want to insert.
-     *
-     * @return bool Whether the insertion succeeded or not.
-     */
     public function insert_nickname($nickname) {
-      $this->db->prep_exec(
+      $this->prep_exec(
         'INSERT INTO accounts (nickname) VALUES (?)',
         's', [$nickname]);
       return true; // TODO - error handling
