@@ -115,7 +115,7 @@
     public function sign_in($nickname) {
       // have we already signed in?
       if ($this->is_signed_in()) {
-        //return new BoolMsg(true, NICK_SIGNEDIN);
+        return new BoolMsg(true, NICK_SIGNEDIN);
       }
       // does nickname meet reqs?
       if (!$this->is_nickname_valid($nickname)) {

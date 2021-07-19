@@ -83,8 +83,35 @@
       $_SESSION[$var] = $value;
     }
 
-    public function start() {
+    /**
+     * Starts the session, then either increases the session lifetime or
+     * destroys it depending on how long it has been inactive for.
+     */
+    private function manage_session_lifetime() {
       session_start();
+      $current = time();
+      // have we started this session before?
+      if (isset($_SESSION['start_timestamp'])) {
+        // session's been inactive for more than 24 hours
+        if ($_SESSION['start_timestamp'] - $current > 86400) {
+          // start a new session
+          setcookie("PHP_SESSID", session_id(), strtotime("-24 hours"), "/");
+          session_unset();
+          session_destroy();
+          session_start();
+        } else {
+          // update session and cookie
+          $_SESSION['start_timestamp'] = $current; // gc won't touch b/c we've modified $_SESSION
+          setcookie("PHPSESSID", session_id(), strtotime('+24 hours'), "/");
+        }
+      // we're starting the session for the first time
+      } else {
+        $_SESSION['start_timestamp'] = $current;
+      }
+    }
+
+    public function start() {
+      $this->manage_session_lifetime();
     }
 
     public function write_close() {
