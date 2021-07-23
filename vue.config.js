@@ -18,9 +18,9 @@ module.exports = {
     },
     watchContentBase: true,
     writeToDisk: true,
-    // writeToDisk: (filePath) => {
-    //   return /.*(?<!hot-update.json)$/.test(filePath);
-    // },
+    writeToDisk: (filePath) => {
+      return /.*(?<!hot-update.json)$/.test(filePath);
+    },
   },
 
   outputDir: 'C:/xampp/htdocs',
