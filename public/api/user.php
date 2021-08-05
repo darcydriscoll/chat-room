@@ -9,10 +9,18 @@
   require_once 'session.php';
   require_once 'db.php';
 
+  // error values
   define('NICK_INVALID', 0);
   define('NICK_INSERTFAIL', 1);
-  define('NICK_SIGNEDIN', 2);
+  // success values
+  define('NICK_ALREADYSIGNEDIN', 2);
+  define('NICK_SUCCESS', 3);
 
+  /**
+   * Represents a boolean value associated with a message explaining it.
+   *
+   * We pass these through to the client-side.
+   */
   class BoolMsg {
     public $bool;
     public $msg;
@@ -20,6 +28,16 @@
     public function __construct($bool, $msg) {
       $this->bool = $bool;
       $this->msg = $msg;
+    }
+
+    /**
+     * Encode the given BoolMsg in JSON format.
+     *
+     * @param BoolMsg $bool_msg The BoolMsg we want to encode.
+     */
+    public static function encode_json($bool_msg) {
+      $arr = array('bool' => $bool_msg->bool, 'msg' => $bool_msg->msg);
+      return json_encode($arr);
     }
   }
 
@@ -101,8 +119,21 @@
      *
      * @return bool True if signed in, false if not.
      */
-    public function is_signed_in() {
+    private function is_signed_in() {
       return !is_null(SessionRegister::get('nickname'));
+    }
+
+    /**
+     * Returns whether the user is signed in.
+     *
+     * @return BoolMsg true with a message if signed in, false if not
+     */
+    public function is_signed_in_msg() {
+      if ($this->is_signed_in()) {
+        return new BoolMsg(true, NICK_ALREADYSIGNEDIN);
+      } else {
+        return new BoolMsg(false, null);
+      }
     }
 
     /**
@@ -115,7 +146,7 @@
     public function sign_in($nickname) {
       // have we already signed in?
       if ($this->is_signed_in()) {
-        return new BoolMsg(true, NICK_SIGNEDIN);
+        return new BoolMsg(true, NICK_ALREADYSIGNEDIN);
       }
       // does nickname meet reqs?
       if (!$this->is_nickname_valid($nickname)) {
@@ -128,7 +159,7 @@
       }
       // add nickname
       SessionRegister::set('nickname', $nickname);
-      return new BoolMsg(true, null);
+      return new BoolMsg(true, NICK_SUCCESS);
     }
   }
 

@@ -1,6 +1,6 @@
 <template>
   <BaseLayout>
-    <form action="api/sign_in.php" method="post" class="grid grid-cols-2">
+    <form @submit.prevent="submitNickname" class="grid grid-cols-2">
       <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
       <label for="username" class="sr-only">Enter your desired nickname:</label>
       <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
@@ -20,6 +20,7 @@
 <script>
 import BaseLayout from './../layout/BaseLayout.vue';
 import StringFunc from './../../string_func.js';
+import FetchFunc from './../../fetch_func.js';
 
 export default {
   name: 'SignIn',
@@ -37,8 +38,9 @@ export default {
       errorID: null,
       errorIDs: {'invalidCharacters' : 0,
                  'invalidLength' : 1,
-                 'taken' : 2,
-                 'unknown' : 3},
+                 'invalid' : 2,
+                 'taken' : 3,
+                 'unknown' : 4},
       errorMsg: '',
       errorMsgs: null,
     }
@@ -48,8 +50,10 @@ export default {
     this.errorMsgs =
       {[this.errorIDs.invalidCharacters] : 'We don\'t accept spaces or special characters in nicknames. Sorry!',
        [this.errorIDs.invalidLength] : 'Nicknames can\'t have more than 20 characters. Sorry about that.',
-       [this.errorIDs.taken] : 'That nickname is taken.',
+       [this.errorIDs.invalid] : 'Sorry, nicknames can\'t have spaces, special characters, or be longer than 20 characters.',
+       [this.errorIDs.taken] : 'That nickname is taken, sorry.',
        [this.errorIDs.unknown] : 'Unknown error.'};
+    this.autoSignIn();
   },
   methods: {
     /**
@@ -64,6 +68,34 @@ export default {
      */
     setError(errorID) {
       this.errorID = errorID;
+    },
+
+    /**
+     * Convert a given server error ID to the appropriate client error ID.
+     *
+     * @param Number errorID The server error ID.
+     *
+     * @return Number The client error ID generated from the given server error
+     *                ID.
+     */
+    convertServerToClientError(errorID) {
+      // NICK_INVALID
+      if (errorID === 0) {
+        return this.errorIDs.invalid;
+      // NICK_INSERTFAIL
+      } else if (errorID === 1) {
+        return this.errorIDs.taken;
+      // misc.
+      } else {
+        return this.errorIDs.unknown;
+      }
+    },
+
+    /**
+     * Move the user into the chat room.
+     */
+    goToChatRoom() {
+      return; // TODO
     },
 
     /**
@@ -90,6 +122,46 @@ export default {
         this.nickname = this.nickname.substring(0, 20);
       }
     },
+
+    /**
+     * Query the server to check if we're already signed in, then act
+     * accordingly.
+     */
+    autoSignIn() {
+      let url = 'api/auto_sign_in.php';
+      FetchFunc.fetchJSON(url)
+      .then(data => {
+        if (data.bool) {
+          this.goToChatRoom();
+        }
+      });
+    },
+
+    /**
+     * Query the server to check if the submitted nickname is valid.
+     */
+    submitNickname() {
+      // organise POST request
+      let url = 'api/sign_in.php';
+      let requestBody = `nickname=${this.nickname}`;
+      let init = {
+        method: 'POST',
+        body: requestBody,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      }
+      // execute POST request
+      FetchFunc.fetchJSON(url, init)
+      .then(data => {
+        console.log(data);
+        if (!data.bool) {
+          this.setError(this.convertServerToClientError(data.msg));
+        } else {
+          this.goToChatRoom();
+        }
+      });
+    }
   },
   watch: {
     /**

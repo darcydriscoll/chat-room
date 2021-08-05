@@ -10,16 +10,13 @@
   require_once 'mysql_db.php';
 
   // sign in
+  $return = null;
   if (!empty($_POST['nickname'])) {
     $user = new User();
-    $sign_in = $user->sign_in($_POST['nickname']);
-    if ($sign_in->bool) {
-      echo 'true';
-    } else {
-      echo 'false: ' . $sign_in->msg;
-    }
+    $return = $user->sign_in($_POST['nickname']);
   } else {
-    echo 'false';
+    $return = new BoolMsg(false, null);
   }
+  echo BoolMsg::encode_json($return);
 
 ?>
