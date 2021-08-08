@@ -14,7 +14,7 @@
     $user = new User();
     $sign_in = $user->sign_in($_POST['nickname']);
     if ($sign_in->bool) {
-      echo 'true: ' . $user->get_nickname();
+      echo 'true';
     } else {
       echo 'false: ' . $sign_in->msg;
     }
