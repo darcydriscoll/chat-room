@@ -5,7 +5,11 @@
       <label for="username" class="sr-only">Enter your desired nickname:</label>
       <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
         <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
-        <input type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
+        <div class="w-16 h-8">
+          <!-- TODO: replace with <Suspense> component -->
+          <img v-if="submittingNick" src="img/icons/loading.png" alt="Loading icon." class="w-8 select-none absolute ml-5 animate-spin">
+          <input v-else type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
+        </div>
         <!-- Accessible form errors -->
         <ul role="alert" aria-relevant="all" :class="`absolute w-${inputWidth} top-10 select-none space-y-2`">
           <transition name="fade">
@@ -43,6 +47,8 @@ export default {
                  'unknown' : 4},
       errorMsg: '',
       errorMsgs: null,
+      // submit input state
+      submittingNick: false,
     }
   },
   created() {
@@ -141,26 +147,34 @@ export default {
      * Query the server to check if the submitted nickname is valid.
      */
     submitNickname() {
-      // organise POST request
-      let url = 'api/sign_in.php';
-      let requestBody = `nickname=${this.nickname}`;
-      let init = {
-        method: 'POST',
-        body: requestBody,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+      // TODO: I think there's a Vue feature to do this logic easier?
+      if (!this.submittingNick) {
+        // turn on loading icon
+        this.submittingNick = true;
+        // organise POST request
+        let url = '/api/sign_in.php';
+        let requestBody = `nickname=${this.nickname}`;
+        let init = {
+          method: 'POST',
+          body: requestBody,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }
         }
+        // execute POST request
+        FetchFunc.fetchJSON(url, init)
+        .then(data => {
+          console.log(data);
+          setTimeout(d => {
+            this.submittingNick = false;
+            if (!d.bool) {
+              this.setError(this.convertServerToClientError(d.msg));
+            } else {
+              this.goToChatRoom();
+            }
+          }, 250, data)
+        });
       }
-      // execute POST request
-      FetchFunc.fetchJSON(url, init)
-      .then(data => {
-        console.log(data);
-        if (!data.bool) {
-          this.setError(this.convertServerToClientError(data.msg));
-        } else {
-          this.goToChatRoom();
-        }
-      });
     }
   },
   watch: {
