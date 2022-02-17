@@ -1,15 +1,17 @@
 <template>
-  <SignIn/>
+  <BaseLayout>
+    <router-view></router-view>
+  </BaseLayout>
 </template>
 
 <script>
 import "tailwindcss/tailwind.css";
-import SignIn from './components/pages/SignIn.vue';
+import BaseLayout from "./components/layout/BaseLayout"
 
 export default {
   name: 'App',
   components: {
-    SignIn,
+    BaseLayout,
   },
 }
 </script>

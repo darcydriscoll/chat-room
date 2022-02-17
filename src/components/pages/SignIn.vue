@@ -1,36 +1,30 @@
 <template>
-  <BaseLayout>
-    <form @submit.prevent="submitNickname" class="grid grid-cols-2">
-      <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
-      <label for="username" class="sr-only">Enter your desired nickname:</label>
-      <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
-        <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
-        <div class="w-16 h-8">
-          <!-- TODO: replace with <Suspense> component -->
-          <img v-if="submittingNick" src="img/icons/loading.png" alt="Loading icon." class="w-8 select-none absolute ml-5 animate-spin">
-          <input v-else type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
-        </div>
-        <!-- Accessible form errors -->
-        <ul role="alert" aria-relevant="all" :class="`absolute w-${inputWidth} top-10 select-none space-y-2`">
-          <transition name="fade">
-            <li v-if="isErrorVisible">{{ errorMsg }}</li>
-          </transition>
-        </ul>
+  <form @submit.prevent="submitNickname" class="grid grid-cols-2">
+    <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
+    <label for="username" class="sr-only">Enter your desired nickname:</label>
+    <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
+      <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
+      <div class="w-16 h-8">
+        <!-- TODO: replace with <Suspense> component -->
+        <img v-if="submittingNick" src="img/icons/loading.png" alt="Loading icon." class="w-8 select-none absolute ml-5 animate-spin">
+        <input v-else type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
       </div>
-    </form>
-  </BaseLayout>
+      <!-- Accessible form errors -->
+      <ul role="alert" aria-relevant="all" :class="`absolute w-${inputWidth} top-10 select-none space-y-2`">
+        <transition name="fade">
+          <li v-if="isErrorVisible">{{ errorMsg }}</li>
+        </transition>
+      </ul>
+    </div>
+  </form>
 </template>
 
 <script>
-import BaseLayout from './../layout/BaseLayout.vue';
 import StringFunc from './../../string_func.js';
 import FetchFunc from './../../fetch_func.js';
 
 export default {
   name: 'SignIn',
-  components: {
-    BaseLayout,
-  },
   data: function() {
     return {
       // nickname config
