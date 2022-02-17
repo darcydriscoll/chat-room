@@ -18,6 +18,11 @@ const routes = [
     name: 'chatroom',
     component: ChatRoom,
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    redirect: { name: 'home' }
+  }
 ]
 
 // create router instance
