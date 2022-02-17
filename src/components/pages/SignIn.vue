@@ -95,7 +95,7 @@ export default {
      * Move the user into the chat room.
      */
     goToChatRoom() {
-      return; // TODO
+      this.$router.push({ name: 'chatroom' })
     },
 
     /**

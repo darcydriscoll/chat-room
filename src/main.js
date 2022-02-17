@@ -4,13 +4,19 @@ import App from './App.vue'
 
 // define route components
 const Home = () => import('./components/pages/SignIn')
+const ChatRoom = () => import('./components/pages/ChatRoom')
 
 // define routes
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+  },
+  {
+    path: '/chatroom',
+    name: 'chatroom',
+    component: ChatRoom,
   },
 ]
 
