@@ -1,4 +1,4 @@
-<template>
+<template lang="html">
   <form @submit.prevent="submitNickname" class="grid grid-cols-2">
     <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
     <label for="username" class="sr-only">Enter your desired nickname:</label>
