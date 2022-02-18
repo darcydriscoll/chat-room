@@ -102,7 +102,7 @@
         } else {
           // update session and cookie
           $_SESSION['start_timestamp'] = $current; // gc won't touch b/c we've modified $_SESSION
-          setcookie("PHPSESSID", session_id(), strtotime('+24 hours'), "/");
+          setcookie("PHPSESSID", session_id(), strtotime('+72 hours'), "/");
         }
       // we're starting the session for the first time
       } else {
