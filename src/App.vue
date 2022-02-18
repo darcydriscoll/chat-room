@@ -2,9 +2,9 @@
   <BaseLayout>
     <!-- TODO: what does the v-slot value mean? -->
     <router-view v-slot="{ Component, route }">
-      <Transition :name="route.meta.transition">
+      <transition :name="route.meta.transition">
         <component :is="Component" :key="route.path" />
-      </Transition>
+      </transition>
     </router-view>
   </BaseLayout>
 </template>
