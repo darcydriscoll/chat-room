@@ -6,9 +6,13 @@
       <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
       <div class="w-16 h-8">
         <!-- TODO: replace with <Suspense> component -->
-        <img v-if="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 animate-spin">
-        <img v-else-if="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5">
-        <input v-else type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
+        <Transition name="formicon">
+          <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 animate-spin">
+        </Transition>
+        <Transition name="formicon">
+          <img v-show="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5">
+        </Transition>
+        <input v-show="!submittingNick && !nickApproved" type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
       </div>
       <!-- Accessible form errors -->
       <ul role="alert" aria-relevant="all" :class="`absolute w-${inputWidth} top-10 select-none space-y-2`">
@@ -212,6 +216,16 @@ export default {
 </script>
 
 <style scoped>
+  .formicon-enter-active,
+  .formicon-leave-active {
+    transition: opacity 0.1s ease;
+  }
+
+  .formicon-enter-from,
+  .formicon-leave-to {
+    opacity: 0;
+  }
+
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;
