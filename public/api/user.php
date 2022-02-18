@@ -8,13 +8,7 @@
   require_once 'string_func.php';
   require_once 'session.php';
   require_once 'db.php';
-
-  // error values
-  define('NICK_INVALID', 0);
-  define('NICK_INSERTFAIL', 1);
-  // success values
-  define('NICK_ALREADYSIGNEDIN', 2);
-  define('NICK_SUCCESS', 3);
+  require_once 'error_codes.php';
 
   /**
    * Represents a boolean value associated with a message explaining it.
@@ -45,9 +39,28 @@
    * Represents and manages an account in the database.
    */
   class User {
+    private $e_codes; // TODO - make static?
 
-    public function __construct() {
-      SessionRegister::start();
+    public function __construct() { }
+
+    private function get_code($code) {
+      return $this->e_codes->get($code);
+    }
+
+    /**
+     * Initialise registers and class instances.
+     *
+     * We do this outside the constructor for now for simpler error handling.
+     */
+    public function init() {
+      try {
+        SessionRegister::start();
+        DBRegister::connect();
+        $this->e_codes = new ErrorCodes();
+        return new BoolMsg(true, null);
+      } catch (Exception $e) {
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
+      }
     }
 
     /**
@@ -78,7 +91,6 @@
     private function add_nickname($nickname) {
       if (!$this->is_nickname_taken($nickname)) {
         return DBRegister::insert_nickname($nickname);
-        // TODO - error handling?
       }
       return false;
     }
@@ -129,10 +141,15 @@
      * @return BoolMsg true with a message if signed in, false if not
      */
     public function is_signed_in_msg() {
-      if ($this->is_signed_in()) {
-        return new BoolMsg(true, NICK_ALREADYSIGNEDIN);
-      } else {
-        return new BoolMsg(false, null);
+      try {
+        if ($this->is_signed_in()) {
+          return new BoolMsg(true, $this->get_code('NICK_ALREADYSIGNEDIN'));
+        } else {
+          return new BoolMsg(false, null);
+        }
+      } catch (Exception $e) {
+        // server error
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
       }
     }
 
@@ -144,22 +161,27 @@
      * @return bool true if we successfully sign in, false if not
      */
     public function sign_in($nickname) {
-      // have we already signed in?
-      if ($this->is_signed_in()) {
-        return new BoolMsg(true, NICK_ALREADYSIGNEDIN);
-      }
-      // does nickname meet reqs?
-      if (!$this->is_nickname_valid($nickname)) {
-        return new BoolMsg(false, NICK_INVALID);
-      }
-      $nickname = StringFunc::sanitise_string($nickname);
-      // try adding nickname
-      if (!$this->add_nickname($nickname)) {
-        return new BoolMsg(false, NICK_INSERTFAIL);
+      try {
+        // have we already signed in?
+        if ($this->is_signed_in()) {
+          return new BoolMsg(true, $this->get_code('NICK_ALREADYSIGNEDIN'));
+        }
+        // does nickname meet reqs?
+        if (!$this->is_nickname_valid($nickname)) {
+          return new BoolMsg(false, $this->get_code('NICK_INVALID'));
+        }
+        $nickname = StringFunc::sanitise_string($nickname);
+        // try adding nickname
+        if (!$this->add_nickname($nickname)) {
+          return new BoolMsg(false, $this->get_code('NICK_INSERTFAIL'));
+        }
+      } catch (Exception $e) {
+        // server error
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
       }
       // add nickname
       SessionRegister::set('nickname', $nickname);
-      return new BoolMsg(true, NICK_SUCCESS);
+      return new BoolMsg(true, $this->get_code('NICK_SUCCESS'));
     }
   }
 

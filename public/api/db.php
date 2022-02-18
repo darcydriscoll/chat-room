@@ -84,9 +84,7 @@
   class MySQLDB implements DB {
     private mysqli $conn;
 
-    public function __construct() {
-      $this->connect();
-    }
+    public function __construct() { }
 
     public function __destruct() {
       $this->close();
@@ -97,7 +95,8 @@
         require_once 'login.php';
         $this->conn = new mysqli($hn, $un, $pw, $db_name);
         if ($this->conn->connect_error) {
-          die('Connection error: ' . $this->conn->connect_error); // TODO
+          error_log(sprintf('MySQLi connection failed: %s\n', $this->conn->connect_error));
+          throw new Exception();
         }
       }
       return $this->conn;
@@ -109,7 +108,7 @@
      * @return bool Returns true on success, false on failure.
      */
     public function close() {
-      return $this->conn->close();
+      return $this->conn->close(); // TODO -- propagate failure to user?
     }
 
     /**
@@ -127,17 +126,36 @@
      */
     private function prep_exec($query, $types, $vars) {
       $stmt = $this->conn->prepare($query);
-      $stmt->bind_param($types, ...$vars);
-      $stmt->execute();
+      if (!$stmt) {
+        error_log(sprintf("Statement preparation failed: %s\n", $this->conn->error));
+        throw new Exception();
+      }
+      if (!$stmt->bind_param($types, ...$vars)) {
+        error_log(sprintf("Parameter binding failed: %s\n", $this->conn->error));
+        throw new Exception();
+      }
+      if (!$stmt->execute()) {
+        error_log(sprintf("Statement execution failed: %s\n", $this->conn->error));
+        throw new Exception();
+      }
       return $stmt;
     }
 
     public function count_same_nicknames($nickname) {
-      $result = $this->prep_exec(
+      $stmt = $this->prep_exec(
         'SELECT COUNT(nickname) FROM accounts WHERE nickname = ?',
-        's', [$nickname])->get_result();
-      $count = $result->fetch_row()[0];
-      $result->close();
+        's', [$nickname]);
+      $result = $stmt->get_result();
+      $fetch_row = $result->fetch_row();
+      if (!$fetch_row) {
+        error_log(sprintf('Failed to fetch rows: %s\n', $this->conn->error));
+        throw new Exception();
+      }
+      $count = $fetch_row[0];
+      if (!$stmt->close()) {
+        error_log(sprintf('Failed to close connection: %s\n', $this->conn->error));
+        throw new Exception();
+      }
       return $count;
     }
 
@@ -145,7 +163,7 @@
       $this->prep_exec(
         'INSERT INTO accounts (nickname) VALUES (?)',
         's', [$nickname]);
-      return true; // TODO - error handling
+      return true;
     }
   }
 

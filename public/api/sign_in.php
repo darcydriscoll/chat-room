@@ -13,7 +13,10 @@
   $return = null;
   if (!empty($_POST['nickname'])) {
     $user = new User();
-    $return = $user->sign_in($_POST['nickname']);
+    $return = $user->init();
+    if ($return->bool) {
+      $return = $user->sign_in($_POST['nickname']);
+    }
   } else {
     $return = new BoolMsg(false, null);
   }

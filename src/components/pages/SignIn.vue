@@ -27,23 +27,27 @@
 <script>
 import StringFunc from './../../string_func.js';
 import FetchFunc from './../../fetch_func.js';
+import ErrorCodes from './../../error_func.js';
 
 export default {
   name: 'SignIn',
   data: function() {
     return {
+      // loading state
+      dependenciesLoaded: false,
       // nickname config
       nickname: '',
       maxNickLength: 20,
       // binds the width of nickname input and errors list
       inputWidth: 52,
       // error state
+      clientErrorCodes: [
+        'SIGNIN_INVALIDLENGTH',
+        'SIGNIN_INVALIDCHARS',
+      ],
+      e_codes: null,
       errorID: null,
-      errorIDs: {'invalidCharacters' : 0,
-                 'invalidLength' : 1,
-                 'invalid' : 2,
-                 'taken' : 3,
-                 'unknown' : 4},
+      // error message
       errorMsg: '',
       errorMsgs: null,
       // submit input state
@@ -52,16 +56,36 @@ export default {
     }
   },
   created() {
-    // set up error messages
-    this.errorMsgs =
-      {[this.errorIDs.invalidCharacters] : 'We don\'t accept spaces or special characters in nicknames. Sorry!',
-       [this.errorIDs.invalidLength] : 'Nicknames can\'t have more than 20 characters. Sorry about that.',
-       [this.errorIDs.invalid] : 'Sorry, nicknames can\'t have spaces, special characters, or be longer than 20 characters.',
-       [this.errorIDs.taken] : 'That nickname is taken, sorry.',
-       [this.errorIDs.unknown] : 'Unknown error.'};
-    this.autoSignIn();
+    // initialise ErrorCodes class instance
+    this.e_codes = new ErrorCodes(this.clientErrorCodes);
+    this.e_codes.init()
+    .then(() => {
+      this.setDependenciesLoaded();
+      // set up error messages
+      this.errorMsgs = {
+        [this.e_codes.get('SIGNIN_INVALIDCHARS')] :
+          'We don\'t accept spaces or special characters in nicknames. Sorry!',
+        [this.e_codes.get('SIGNIN_INVALIDLENGTH')] :
+          'Nicknames can\'t have more than 20 characters. Sorry about that.',
+        [this.e_codes.get('NICK_INVALID')] :
+          'Sorry, nicknames can\'t have spaces, special characters, or be longer than 20 characters.',
+        [this.e_codes.get('NICK_INSERTFAIL')] :
+          'That nickname is taken, sorry.',
+        [this.e_codes.get('SERVER_ERROR')] :
+          'An unknown error occured. Please try again later.'
+      };
+      this.autoSignIn();
+    })
+    .catch(e => {
+      console.error(e);
+      this.setAndLogUnknownError();
+    })
   },
   methods: {
+    setDependenciesLoaded() {
+      this.dependenciesLoaded = true;
+    },
+
     /**
      * Set the current errorID, and by extension, the current error shown
      * on screen.
@@ -70,31 +94,20 @@ export default {
      * this.errorID, it's not immediately clear that the assignment has
      * side-effects.
      *
-     * @param Number errorID The new error ID. Should match to ID in errorIDs.
+     * @param Number errorID The new error ID. Should match to ID in e_codes.
      */
     setError(errorID) {
       this.errorID = errorID;
     },
 
     /**
-     * Convert a given server error ID to the appropriate client error ID.
+     * Set the current error ID to unknown, and log the passed error.
      *
-     * @param Number errorID The server error ID.
-     *
-     * @return Number The client error ID generated from the given server error
-     *                ID.
+     * @param Error e The error we're calling an 'unknown error'.
      */
-    convertServerToClientError(errorID) {
-      // NICK_INVALID
-      if (errorID === 0) {
-        return this.errorIDs.invalid;
-      // NICK_INSERTFAIL
-      } else if (errorID === 1) {
-        return this.errorIDs.taken;
-      // misc.
-      } else {
-        return this.errorIDs.unknown;
-      }
+    setAndLogUnknownError(e) {
+      this.setError(this.e_codes.get('SERVER_ERROR'));
+      console.error(e);
     },
 
     /**
@@ -119,12 +132,12 @@ export default {
         if (StringFunc.isCharacterValid(code)) {
           finalNick += code;
         } else {
-          this.setError(this.errorIDs.invalidCharacters);
+          this.setError(this.e_codes.get('SIGNIN_INVALIDCHARS'));
         }
       }
       this.nickname = finalNick;
       if (this.nickname.length > this.maxNickLength) {
-        this.setError(this.errorIDs.invalidLength);
+        this.setError(this.e_codes.get('SIGNIN_INVALIDLENGTH'));
         this.nickname = this.nickname.substring(0, 20);
       }
     },
@@ -139,7 +152,14 @@ export default {
       .then(data => {
         if (data.bool) {
           this.goToChatRoom();
+        } else if (data.msg === this.e_codes.get('SERVER_ERROR')) {
+          this.setError(this.e_codes.get('SERVER_ERROR'));
+        } else if (data.msg !== null) {
+          throw new Error(`Unexpected error code passed: ${data.msg}`); // TODO:
         }
+      })
+      .catch(e => {
+        this.setAndLogUnknownError(e);
       });
     },
 
@@ -168,14 +188,20 @@ export default {
           setTimeout(d => {
             this.submittingNick = false;
             if (!d.bool) {
-              this.setError(this.convertServerToClientError(d.msg));
+              this.setError(d.msg);
             } else {
               this.nickApproved = true;
               setTimeout(() => {
                 this.goToChatRoom();
               }, 750);
             }
-          }, 250, data)
+          }, 250, data);
+        })
+        .catch(e => {
+          this.setAndLogUnknownError(e);
+          // reset vars
+          this.submittingNick = false;
+          this.nickApproved = false;
         });
       }
     }
@@ -189,7 +215,7 @@ export default {
      * switches to null, we need the message not to change to ensure the error
      * fades out smoothly.
      *
-     * @param Number newID The new error ID. Should match to ID in errorIDs.
+     * @param Number newID The new error ID. Should match to ID in e_codes.
      */
     errorID(newID) {
       if (newID !== null) {

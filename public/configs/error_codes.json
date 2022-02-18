@@ -1,0 +1,9 @@
+{
+  "error_codes": [
+    "SERVER_ERROR",
+    "NICK_INVALID",
+    "NICK_INSERTFAIL",
+    "NICK_ALREADYSIGNEDIN",
+    "NICK_SUCCESS"
+  ]
+}

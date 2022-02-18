@@ -88,21 +88,39 @@
      * destroys it depending on how long it has been inactive for.
      */
     private function manage_session_lifetime() {
-      session_start();
+      if (!session_start()) {
+        error_log("Session could not be started.");
+        throw new Exception();
+      }
       $current = time();
       // have we started this session before?
       if (isset($_SESSION['start_timestamp'])) {
         // session's been inactive for more than 24 hours
         if ($_SESSION['start_timestamp'] - $current > 86400) {
           // start a new session
-          setcookie("PHP_SESSID", session_id(), strtotime("-24 hours"), "/");
-          session_unset();
-          session_destroy();
-          session_start();
+          if (!setcookie("PHP_SESSID", session_id(), strtotime("-24 hours"), "/")) {
+            error_log("Session ID cookie could not be created.");
+            throw new Exception();
+          }
+          if (!session_unset()) {
+            error_log("Session variables could not be unset.");
+            throw new Exception();
+          }
+          if (!session_destroy()) {
+            error_log("Session data could not be destroyed.");
+            throw new Exception();
+          }
+          if (!session_start()) {
+            error_log("Session could not be started.");
+            throw new Exception();
+          }
         } else {
           // update session and cookie
           $_SESSION['start_timestamp'] = $current; // gc won't touch b/c we've modified $_SESSION
-          setcookie("PHPSESSID", session_id(), strtotime('+72 hours'), "/");
+          if (!setcookie("PHPSESSID", session_id(), strtotime('+72 hours'), "/")) {
+            error_log("Session ID cookie could not be updated.");
+            throw new Exception();
+          }
         }
       // we're starting the session for the first time
       } else {
@@ -115,7 +133,10 @@
     }
 
     public function write_close() {
-      session_write_close();
+      if (!session_write_close()) {
+        error_log("Session data could not be written to and session could not be closed.");
+        throw new Exception();
+      }
     }
   }
 

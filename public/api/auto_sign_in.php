@@ -10,7 +10,10 @@
   require_once 'mysql_db.php';
 
   $user = new User();
-  $return = $user->is_signed_in_msg();
+  $return = $user->init();
+  if ($return->bool) {
+    $return = $user->is_signed_in_msg();
+  }
   echo BoolMsg::encode_json($return);
 
 ?>
