@@ -10,7 +10,8 @@
           <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 animate-spin">
         </Transition>
         <Transition name="formicon">
-          <img v-show="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5">
+          <img v-show="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5"
+               style="filter: brightness(0) saturate(100%) invert(56%) sepia(97%) saturate(375%) hue-rotate(66deg) brightness(99%) contrast(96%);">
         </Transition>
         <input v-show="!submittingNick && !nickApproved" type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
       </div>
