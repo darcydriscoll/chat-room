@@ -1,30 +1,34 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <BaseLayout>
+    <!-- TODO: what does the v-slot value mean? -->
+    <router-view v-slot="{ Component, route }">
+      <transition :name="route.meta.transition">
+        <component :is="Component" :key="route.path" />
+      </transition>
+    </router-view>
+  </BaseLayout>
 </template>
 
 <script>
 import "tailwindcss/tailwind.css";
-import HelloWorld from './components/HelloWorld.vue';
+import BaseLayout from "./components/layout/BaseLayout"
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    BaseLayout,
   },
-  created() {
-    fetch('api/test.php').then(x => x.text()).then(console.log);
-  }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  .signin-enter-active,
+  .signin-leave-active {
+    transition: opacity 0.5s ease 0.25s;
+  }
+
+  .signin-enter-from,
+  .signin-leave-to {
+    opacity: 0;
+  }
 </style>

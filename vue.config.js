@@ -1,5 +1,7 @@
 // vue.config.js
 
+const path = require('path');
+
 /**
  * @type {import('@vue/cli-service').ProjectOptions}
  */
@@ -12,7 +14,14 @@ module.exports = {
       '^/api/': {
         target: 'http://localhost',
         changeOrigin: true, // for CORS
-      }
-    }
-  }
+      },
+    },
+    watchContentBase: true,
+    writeToDisk: true,
+    writeToDisk: (filePath) => {
+      return /.*(?<!hot-update.json)$/.test(filePath);
+    },
+  },
+
+  outputDir: 'C:/xampp/htdocs',
 };
