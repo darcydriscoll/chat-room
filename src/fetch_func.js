@@ -9,7 +9,7 @@ export default class FetchFunc {
    * @return Promise A promise that resolves to the JSON representation of the
    *                 URL we requested from.
    */
-  static fetchJSON(url, init={}) {
+  static fetchJSON (url, init = {}) {
     return fetch(url, init)
       .then(response => {
         console.log(`status: ${response.status} ${response.statusText}`);

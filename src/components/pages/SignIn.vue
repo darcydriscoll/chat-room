@@ -32,7 +32,7 @@ import ErrorCodes from './../../error_func.js';
 
 export default {
   name: 'SignIn',
-  data: function() {
+  data: function () {
     return {
       // loading state
       dependenciesLoaded: false,
@@ -54,39 +54,39 @@ export default {
       // submit input state
       submittingNick: false,
       nickApproved: false,
-    }
+    };
   },
-  created() {
+  created () {
     // initialise ErrorCodes class instance
     this.e_codes = new ErrorCodes(this.clientErrorCodes);
     this.e_codes.init()
-    .then(() => {
-      this.setDependenciesLoaded();
-      // set up error messages
-      this.errorMsgs = {
-        [this.e_codes.get('SIGNIN_INVALIDCHARS')] :
+      .then(() => {
+        this.setDependenciesLoaded();
+        // set up error messages
+        this.errorMsgs = {
+          [this.e_codes.get('SIGNIN_INVALIDCHARS')]:
           'We don\'t accept spaces or special characters in nicknames. Sorry!',
-        [this.e_codes.get('SIGNIN_INVALIDLENGTH')] :
+          [this.e_codes.get('SIGNIN_INVALIDLENGTH')]:
           'Nicknames can\'t have more than 20 characters. Sorry about that.',
-        [this.e_codes.get('NICK_INVALID')] :
+          [this.e_codes.get('NICK_INVALID')]:
           'Sorry, nicknames can\'t have spaces, special characters, or be longer than 20 characters.',
-        [this.e_codes.get('NICK_INSERTFAIL')] :
+          [this.e_codes.get('NICK_INSERTFAIL')]:
           'That nickname is taken, sorry.',
-        [this.e_codes.get('SERVER_ERROR')] :
-          'An unknown error occured. Please try again later.'
-      };
-      this.autoSignIn();
-    })
-    .catch(e => {
-      console.error(e);
-      this.setAndLogUnknownError();
-    })
+          [this.e_codes.get('SERVER_ERROR')]:
+          'An unknown error occured. Please try again later.',
+        };
+        this.autoSignIn();
+      })
+      .catch(e => {
+        console.error(e);
+        this.setAndLogUnknownError();
+      });
   },
   methods: {
     /**
      * Set this.dependenciesLoaded = true.
      */
-    setDependenciesLoaded() {
+    setDependenciesLoaded () {
       this.dependenciesLoaded = true;
     },
 
@@ -100,7 +100,7 @@ export default {
      *
      * @param Number errorID The new error ID. Should match to ID in e_codes.
      */
-    setError(errorID) {
+    setError (errorID) {
       this.errorID = errorID;
     },
 
@@ -109,7 +109,7 @@ export default {
      *
      * @param Error e The error we're calling an 'unknown error'.
      */
-    setAndLogUnknownError(e) {
+    setAndLogUnknownError (e) {
       this.setError(this.e_codes.get('SERVER_ERROR'));
       console.error(e);
     },
@@ -117,8 +117,8 @@ export default {
     /**
      * Move the user into the chat room.
      */
-    goToChatRoom() {
-      this.$router.push({ name: 'chatroom' })
+    goToChatRoom () {
+      this.$router.push({ name: 'chatroom' });
     },
 
     /**
@@ -128,10 +128,10 @@ export default {
      *
      * @param InputEvent e
      */
-    updateNickname(e) {
+    updateNickname (e) {
       // go through each character in the final nickname
       let finalNick = '';
-      for (let code of e.target.value) {
+      for (const code of e.target.value) {
         // only keep character if it's valid
         if (StringFunc.isCharacterValid(code)) {
           finalNick += code;
@@ -150,65 +150,65 @@ export default {
      * Query the server to check if we're already signed in, then act
      * accordingly.
      */
-    autoSignIn() {
-      let url = 'api/auto_sign_in.php';
+    autoSignIn () {
+      const url = 'api/auto_sign_in.php';
       FetchFunc.fetchJSON(url)
-      .then(data => {
-        if (data.bool) {
-          this.goToChatRoom();
-        } else if (data.msg === this.e_codes.get('SERVER_ERROR')) {
-          this.setError(this.e_codes.get('SERVER_ERROR'));
-        } else if (data.msg !== null) {
-          throw new Error(`Unexpected error code passed: ${data.msg}`); // TODO:
-        }
-      })
-      .catch(e => {
-        this.setAndLogUnknownError(e);
-      });
+        .then(data => {
+          if (data.bool) {
+            this.goToChatRoom();
+          } else if (data.msg === this.e_codes.get('SERVER_ERROR')) {
+            this.setError(this.e_codes.get('SERVER_ERROR'));
+          } else if (data.msg !== null) {
+            throw new Error(`Unexpected error code passed: ${data.msg}`); // TODO:
+          }
+        })
+        .catch(e => {
+          this.setAndLogUnknownError(e);
+        });
     },
 
     /**
      * Query the server to check if the submitted nickname is valid.
      */
-    submitNickname() {
+    submitNickname () {
       // TODO: I think there's a Vue feature to do this logic easier?
       if (!this.submittingNick) {
         // turn on loading icon
         this.submittingNick = true;
         // organise POST request
-        let url = '/api/sign_in.php';
-        let requestBody = `nickname=${this.nickname}`;
-        let init = {
+        const url = '/api/sign_in.php';
+        const requestBody = `nickname=${this.nickname}`;
+        const init = {
           method: 'POST',
           body: requestBody,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        }
+          },
+        };
         // execute POST request
         FetchFunc.fetchJSON(url, init)
-        .then(data => {
-          console.log(data);
-          setTimeout(d => {
+          .then(data => {
+            console.log(data);
+            setTimeout(d => {
+              this.submittingNick = false;
+              if (!d.bool) {
+                this.setError(d.msg);
+              } else {
+                this.nickApproved = true;
+                setTimeout(() => {
+                  this.goToChatRoom();
+                }, 750);
+              }
+            }, 250, data);
+          })
+          .catch(e => {
+            this.setAndLogUnknownError(e);
+            // reset vars
             this.submittingNick = false;
-            if (!d.bool) {
-              this.setError(d.msg);
-            } else {
-              this.nickApproved = true;
-              setTimeout(() => {
-                this.goToChatRoom();
-              }, 750);
-            }
-          }, 250, data);
-        })
-        .catch(e => {
-          this.setAndLogUnknownError(e);
-          // reset vars
-          this.submittingNick = false;
-          this.nickApproved = false;
-        });
+            this.nickApproved = false;
+          });
       }
-    }
+    },
   },
   watch: {
     /**
@@ -221,28 +221,28 @@ export default {
      *
      * @param Number newID The new error ID. Should match to ID in e_codes.
      */
-    errorID(newID) {
+    errorID (newID) {
       if (newID !== null) {
         this.errorMsg = this.errorMsgs[this.errorID];
       }
-    }
+    },
   },
   computed: {
     /**
      * Returns whether the current nickname is valid or not.
      */
-    isNicknameValid() {
+    isNicknameValid () {
       return StringFunc.isNicknameValid(this.nickname);
     },
 
     /**
      * Returns whether an error should be visible or not.
      */
-    isErrorVisible() {
+    isErrorVisible () {
       return this.errorID !== null;
     },
   },
-}
+};
 </script>
 
 <style scoped>

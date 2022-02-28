@@ -6,6 +6,7 @@ vue.config.js
 public/api/login.php
 phpunit-9.5.phar
 .phpunit.result.cache
+.editorconfig
 
 # local env files
 .env.local

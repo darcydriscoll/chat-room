@@ -1,4 +1,4 @@
-<template>
+<template lang="html">
   <BaseLayout>
     <!-- TODO: what does the v-slot value mean? -->
     <router-view v-slot="{ Component, route }">
@@ -10,15 +10,15 @@
 </template>
 
 <script>
-import "tailwindcss/tailwind.css";
-import BaseLayout from "./components/layout/BaseLayout"
+import 'tailwindcss/tailwind.css';
+import BaseLayout from './components/layout/BaseLayout';
 
 export default {
   name: 'App',
   components: {
     BaseLayout,
   },
-}
+};
 </script>
 
 <style>

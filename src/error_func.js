@@ -7,7 +7,7 @@ import FetchFunc from './fetch_func.js';
  * @author Darcy Driscoll <darcy.driscoll@outlook.com>
  */
 export default class ErrorCodes {
-  constructor(clientErrors = []) {
+  constructor (clientErrors = []) {
     this.clientCodes = clientErrors;
     this.codesURL = 'configs/error_codes.json';
   }
@@ -17,8 +17,8 @@ export default class ErrorCodes {
    *
    * @return Promise So the caller knows when initialisation is complete.
    */
-  init() {
-    return this.getCodes().then(codes => this.codes = codes);
+  init () {
+    return this.getCodes().then(codes => { this.codes = codes; });
   }
 
   /**
@@ -27,19 +27,19 @@ export default class ErrorCodes {
    * @return Promise<Map> A Promise that tries to resolve into a Map of
    *                      error codes.
    */
-  getCodes() {
+  getCodes () {
     // fetch error codes json file
     return FetchFunc.fetchJSON(this.codesURL)
-    .then(jsonObj => {
-      let serverCodes = jsonObj.error_codes;
-      let codes = serverCodes.concat(this.clientCodes);
-      // store codes in map
-      let codesMap = new Map();
-      for (const [ix, code] of codes.entries()) {
-        codesMap.set(code, ix);
-      }
-      return codesMap;
-    })
+      .then(jsonObj => {
+        const serverCodes = jsonObj.error_codes;
+        const codes = serverCodes.concat(this.clientCodes);
+        // store codes in map
+        const codesMap = new Map();
+        for (const [ix, code] of codes.entries()) {
+          codesMap.set(code, ix);
+        }
+        return codesMap;
+      });
   }
 
   /**
@@ -51,7 +51,7 @@ export default class ErrorCodes {
    * @return Number if code is a valid error code.
    * @throws Error if code isn't a valid error code.
    */
-  get(code) {
+  get (code) {
     if (this.codes.has(code)) {
       return this.codes.get(code);
     } else {
@@ -64,12 +64,12 @@ export default class ErrorCodes {
    *
    * @return String
    */
-  get_all() {
-    let str = "";
+  getAll () {
+    let str = '';
     this.codes.forEach((value, key) => {
-      let v = value;
-      let k = key;
-      str += `[${k}, ${v}],\n`
+      const v = value;
+      const k = key;
+      str += `[${k}, ${v}],\n`;
     });
     return str;
   }
