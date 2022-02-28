@@ -4,6 +4,9 @@ module.exports = {
   content: ['./src/**/*.{html,js}'],
   theme: {
     extend: {
+      width: {
+        160: '40rem',
+      },
       fontFamily: {
         'chat-heading': ['Raleway', 'sans-serif'],
         'chat-body': ['Open Sans', 'sans-serif'],
@@ -13,6 +16,15 @@ module.exports = {
       },
       gridTemplateColumns: {
         '2-auto': '1fr auto',
+      },
+      backgroundImage: {
+        'submit-msg': 'url("/img/icons/send-message.png")',
+      },
+      backgroundSize: {
+        '50%': '50%',
+      },
+      backgroundPosition: {
+        'center-l-offset': 'top 50% left 60%',
       },
     },
   },
