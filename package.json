@@ -22,7 +22,7 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.11",
     "@vue/eslint-config-standard": "^5.1.2",
-    "autoprefixer": "^9.8.6",
+    "autoprefixer": "^9.8.8",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
@@ -31,8 +31,8 @@
     "eslint-plugin-promise": "^5.2.0",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^8.5.0",
-    "postcss": "^7.0.35",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.1.0"
+    "postcss": "^7.0.39",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
   },
   "eslintConfig": {
     "root": true,
@@ -48,11 +48,17 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "semi": ["error", "always"],
-      "comma-dangle": ["warn", {
-        "arrays": "always-multiline",
-        "objects": "always-multiline"
-      }]
+      "semi": [
+        "error",
+        "always"
+      ],
+      "comma-dangle": [
+        "warn",
+        {
+          "arrays": "always-multiline",
+          "objects": "always-multiline"
+        }
+      ]
     }
   },
   "browserslist": [
