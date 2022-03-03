@@ -1,5 +1,5 @@
 <template>
-  <div class="border-2 rounded-md border-blue-300 shadow-md lg:shadow-lg text-sm md:text-base h-full my-8 md:my-16 lg:my-20 xl:my-12 2xl:my-20 mx-3 md:mx-16 lg:mx-72 xl:mx-96 2xl:mx-0 2xl:self-center 2xl:w-160 grid grid-cols-1">
+  <div class="relative border-2 rounded-md border-blue-300 shadow-md lg:shadow-lg text-sm md:text-base h-full my-8 md:my-16 lg:my-20 xl:my-12 2xl:my-20 mx-3 md:mx-16 lg:mx-72 xl:mx-96 2xl:mx-0 2xl:self-center 2xl:w-160 grid grid-cols-1">
     <!-- message box -->
     <section class="self-start p-1.5">
       <h2 class="sr-only">Messages</h2>
@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import FetchFunc from './../../fetch_func.js';
 import ErrorCodes from './../../error_func.js';
 
 export default {
@@ -44,35 +43,7 @@ export default {
   created () {
     // initialise ErrorCodes class instance
     this.eCodes = new ErrorCodes();
-    this.eCodes.init()
-      .then(() => {
-        // see if we're signed in
-        this.verifyAccess();
-      })
-      .catch(e => {
-        console.error(e);
-      });
-  },
-
-  methods: {
-    /**
-     * Query the server to check if we're already signed in.
-     * If we're not, go back to the home page.
-     */
-    verifyAccess () {
-      const url = 'api/auto_sign_in.php';
-      FetchFunc.fetchJSON(url)
-        .then(data => {
-          if (!data.bool && data.msg === null) {
-            this.$router.push({ name: 'home' });
-          } else if (!data.bool) {
-            console.error(`An unknown error was passed from the server: ${data.msg}`);
-          }
-        })
-        .catch(e => {
-          console.error(e);
-        });
-    },
+    this.eCodes.init();
   },
 
 };

@@ -185,6 +185,8 @@ export default {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         };
+        const loadingDelay = 250;
+        const successDelay = 250;
         // execute POST request
         FetchFunc.fetchJSON(url, init)
           .then(data => {
@@ -197,9 +199,9 @@ export default {
                 this.nickApproved = true;
                 setTimeout(() => {
                   this.goToChatRoom();
-                }, 750);
+                }, successDelay);
               }
-            }, 250, data);
+            }, loadingDelay, data);
           })
           .catch(e => {
             this.setAndLogUnknownError(e);
