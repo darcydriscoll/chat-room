@@ -106,4 +106,17 @@ export default {
     opacity: 0;
     transform: translateY(1rem);
   }
+
+  @media (prefers-reduced-motion) {
+    .dissolve-in-dissolve-down-out-enter-active,
+    .dissolve-in-dissolve-down-out-leave-active,
+    .dissolve-up-in-dissolve-out-enter-active,
+    .dissolve-up-in-dissolve-out-leave-active,
+    .dissolve-enter-active,
+    .dissolve-leave-active,
+    .dissolve-up-enter-active,
+    .dissolve-up-leave-active {
+      transition: none;
+    }
+  }
 </style>

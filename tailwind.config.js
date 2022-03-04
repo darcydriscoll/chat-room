@@ -32,6 +32,7 @@ module.exports = {
     extend: {
       backgroundColor: ['disabled'],
       cursor: ['hover', 'disabled'],
+      animation: ['motion-safe'],
     },
   },
   plugins: [],

@@ -7,7 +7,7 @@
       <div class="w-16 h-8">
         <!-- TODO: replace with <Suspense> component -->
         <Transition name="formicon">
-          <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 animate-spin">
+          <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 motion-safe:animate-spin">
         </Transition>
         <Transition name="formicon">
           <img v-show="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5"
@@ -266,5 +266,14 @@ export default {
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
+  }
+
+  @media (prefers-reduced-motion) {
+    .formicon-enter-active,
+    .formicon-leave-active,
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: none;
+    }
   }
 </style>
