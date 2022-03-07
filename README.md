@@ -4,7 +4,7 @@ A little chat room I'm making with Vue, Tailwind, MySQL, and PHP. I'm using it t
 
 Here's what I have so far:
 
-![Project showcase gif](https://github.com/darcydriscoll/chat-room/blob/f7239519c48537b9446ec8c6b9df0a9ee4dce134/wiki/chatroom-show.gif)
+![Project showcase gif](https://github.com/darcydriscoll/chat-room/blob/614cf7f6021ff5805579bf98a055c4d776584fd7/wiki/chatroom-show.gif)
 
 ⭐ [See the project hub.](https://github.com/darcydriscoll/chat-room/wiki)
 
