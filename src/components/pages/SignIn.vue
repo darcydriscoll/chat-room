@@ -29,6 +29,8 @@
 import StringFunc from './../../string_func.js';
 import FetchFunc from './../../fetch_func.js';
 import ErrorCodes from './../../error_func.js';
+import { store as attrStore, createAttribution as createAttr }
+  from './../../attributions.js';
 
 export default {
   name: 'SignIn',
@@ -81,6 +83,11 @@ export default {
         console.error(e);
         this.setAndLogUnknownError();
       });
+    // initialise attribution store
+    attrStore.updateAttributions(
+      createAttr('Tick', 'Landan Lloyd', 'NounProject.com'),
+      createAttr('Loading', 'Leif Michelsen', 'NounProject.com')
+    );
   },
   methods: {
     /**

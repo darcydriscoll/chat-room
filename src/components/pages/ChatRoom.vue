@@ -29,6 +29,8 @@
 
 <script>
 import ErrorCodes from './../../error_func.js';
+import { store as attrStore, createAttribution as createAttr }
+  from './../../attributions.js';
 
 export default {
   name: 'ChatRoom',
@@ -44,6 +46,10 @@ export default {
     // initialise ErrorCodes class instance
     this.eCodes = new ErrorCodes();
     this.eCodes.init();
+    // initialise attribution store
+    attrStore.updateAttributions(
+      createAttr('Send Message', 'Shovy Rahman', 'NounProject.com')
+    );
   },
 
 };
