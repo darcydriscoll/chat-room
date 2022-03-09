@@ -1,12 +1,16 @@
 <template lang="html">
-  <BaseLayout>
-    <!-- TODO: what does the v-slot value mean? -->
-    <router-view v-slot="{ Component, route }">
-      <transition :name="route.meta.transitionName" mode="out-in">
-        <component :is="Component" :key="route.path" />
-      </transition>
-    </router-view>
-  </BaseLayout>
+  <div ref="focusTarget">
+    <VueSkipTo to="#main" label="Skip to main content" />
+    <VueAnnouncer class="sr-only" />
+    <BaseLayout>
+      <!-- TODO: what does the v-slot value mean? -->
+      <router-view v-slot="{ Component, route }">
+        <transition :name="route.meta.transitionName" mode="out-in">
+          <component :is="Component" :headlineLevel="2" :key="route.path" />
+        </transition>
+      </router-view>
+    </BaseLayout>
+  </div>
 </template>
 
 <script>
@@ -17,6 +21,18 @@ export default {
   name: 'App',
   components: {
     BaseLayout,
+  },
+  watch: {
+    $route () {
+      this.$nextTick(() => {
+        // focus on router-view on route transition
+        // (based on recommendation: accessible-app.com/pattern/vue/routing)
+        const focusTarget = this.$refs.focusTarget;
+        focusTarget.setAttribute('tabindex', '-1');
+        focusTarget.focus();
+        focusTarget.removeAttribute('tabindex');
+      });
+    },
   },
 };
 </script>

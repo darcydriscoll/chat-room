@@ -1,8 +1,8 @@
 <template lang="html">
   <form @submit.prevent="submitNickname" class="grid grid-cols-2">
     <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
-    <label for="username" class="sr-only">Enter your desired nickname:</label>
     <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
+      <label for="username" class="sr-only">Enter your desired nickname:</label>
       <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :disabled="!dependenciesLoaded" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
       <div class="w-16 h-8">
         <!-- TODO: replace with <Suspense> component -->
