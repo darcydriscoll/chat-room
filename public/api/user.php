@@ -9,31 +9,7 @@
   require_once 'session.php';
   require_once 'db.php';
   require_once 'error_codes.php';
-
-  /**
-   * Represents a boolean value associated with a message explaining it.
-   *
-   * We pass these through to the client-side.
-   */
-  class BoolMsg {
-    public $bool;
-    public $msg;
-
-    public function __construct($bool, $msg) {
-      $this->bool = $bool;
-      $this->msg = $msg;
-    }
-
-    /**
-     * Encode the given BoolMsg in JSON format.
-     *
-     * @param BoolMsg $bool_msg The BoolMsg we want to encode.
-     */
-    public static function encode_json($bool_msg) {
-      $arr = array('bool' => $bool_msg->bool, 'msg' => $bool_msg->msg);
-      return json_encode($arr);
-    }
-  }
+  require_once 'bool_msg.php';
 
   /**
    * Represents and manages an account in the database.
@@ -145,7 +121,7 @@
         if ($this->is_signed_in()) {
           return new BoolMsg(true, $this->get_code('NICK_ALREADYSIGNEDIN'));
         } else {
-          return new BoolMsg(false, null);
+          return new BoolMsg(false, $this->get_code('USER_UNAUTHENTICATED'));
         }
       } catch (Exception $e) {
         // server error
@@ -182,6 +158,27 @@
       // add nickname
       SessionRegister::set('nickname', $nickname);
       return new BoolMsg(true, $this->get_code('NICK_SUCCESS'));
+    }
+
+    /**
+     * Generate a message and return it.
+     *
+     * @return BoolMsg<ChatMessage>|BoolMsg<String> depending on whether the
+     *  message generation succeeds.
+     */
+    public function generate_message() {
+      try {
+        // make sure we're signed in already
+        if (!$this->is_signed_in()) {
+          return new BoolMsg(false, $this->get_code('USER_UNAUTHENTICATED'));
+        }
+        // try adding a message
+        $message = DBRegister::add_new_message($this->get_nickname());
+        return new BoolMsg(true, $message);
+      } catch (Exception $e) {
+        // server error
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
+      }
     }
   }
 

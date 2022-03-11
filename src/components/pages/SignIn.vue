@@ -165,7 +165,7 @@ export default {
             this.goToChatRoom();
           } else if (data.msg === this.e_codes.get('SERVER_ERROR')) {
             this.setError(this.e_codes.get('SERVER_ERROR'));
-          } else if (data.msg !== null) {
+          } else if (data.msg !== this.e_codes.get('USER_UNAUTHENTICATED')) {
             throw new Error(`Unexpected error code passed: ${data.msg}`); // TODO:
           }
         })

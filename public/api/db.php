@@ -10,6 +10,10 @@
    * @author Darcy Driscoll <darcy.driscoll@outlook.com>
    */
 
+  require_once 'bool_msg.php';
+  require_once 'chat_message.php';
+  require_once 'string_func.php';
+
   /**
    * Register (?) that interfaces with a given database proxy.
    *
@@ -40,6 +44,10 @@
 
     public static function insert_nickname($nickname) {
       return self::$db->insert_nickname($nickname);
+    }
+
+    public static function add_new_message($nickname) {
+      return self::$db->add_new_message($nickname);
     }
   }
 
@@ -124,13 +132,13 @@
      *
      * @return mysqli_stmt Query statement, prepared and executed
      */
-    private function prep_exec($query, $types, $vars) {
+    private function prep_exec($query, $types = null, $vars = null) {
       $stmt = $this->conn->prepare($query);
       if (!$stmt) {
         error_log(sprintf("Statement preparation failed: %s\n", $this->conn->error));
         throw new Exception();
       }
-      if (!$stmt->bind_param($types, ...$vars)) {
+      if (!is_null($types) && !$stmt->bind_param($types, ...$vars)) {
         error_log(sprintf("Parameter binding failed: %s\n", $this->conn->error));
         throw new Exception();
       }
@@ -164,6 +172,33 @@
         'INSERT INTO accounts (nickname) VALUES (?)',
         's', [$nickname]);
       return true;
+    }
+
+    /**
+     * Inserts a new message into the messages buffer (deleting all others).
+     *
+     * @param string $nickname The nickname associated with the message.
+     *
+     * @return ChatMessage if the insertion succeeds.
+     * @throws Exception if the insertion fails.
+     */
+    public function add_new_message($nickname) {
+      // delete all messages
+      $this->prep_exec('TRUNCATE TABLE messages');
+      // message parameters
+      date_default_timezone_set('UTC');
+      $timestamp = time();
+      $date = date('Y-m-d H:i:s', $timestamp);
+      $message = StringFunc::sanitise_string(
+        trim(file_get_contents('https://loripsum.net/api/1/medium/plaintext'))
+      );
+      // add message
+      $this->prep_exec(
+        'INSERT INTO messages (id, timestamp, nickname, message)
+         VALUES (NULL, ?, ?, ?)',
+        'sss', [$date, $nickname, $message]
+      );
+      return new ChatMessage($timestamp, $nickname, $message);
     }
   }
 
