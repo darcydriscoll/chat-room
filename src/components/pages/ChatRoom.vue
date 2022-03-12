@@ -4,15 +4,20 @@
     <section class="self-start p-1.5">
       <DynamicHeadline :level="headlineLevel" class="sr-only">Messages</DynamicHeadline>
       <!-- Message 1 -->
-      <article>
-        <DynamicHeadline :level="headlineLevel+1" class="sr-only">Message</DynamicHeadline>
-        <p>Message contents</p>
-      </article>
+      <ChatMessage
+        :headlineLevel="headlineLevel + 1"
+        nickname="Darcy"
+        :timestamp="1647070853"
+        message="Hey everyone. How's it all going?"
+      ></ChatMessage>
       <!-- Message 2 -->
-      <article>
-        <DynamicHeadline :level="headlineLevel+1" class="sr-only">Message</DynamicHeadline>
-        <p>Message contents</p>
-      </article>
+      <ChatMessage
+        :headlineLevel="headlineLevel + 1"
+        nickname="Sarah"
+        :timestamp="1647070853"
+        message="Pretty good Darcy. I just got done implementing the
+          chat message generation feature of my web app. How are you doing?"
+      ></ChatMessage>
     </section>
     <!-- send message -->
     <form @submit.prevent="" class="self-end border-t-2 border-blue-300 grid" style="grid-template-columns: minmax(0, 1fr) auto">
@@ -33,12 +38,14 @@ import { store as attrStore, createAttribution as createAttr }
   from './../../attributions.js';
 
 import DynamicHeadline from './../DynamicHeadline.vue';
+import ChatMessage from './../ChatMessage.vue';
 
 export default {
   name: 'ChatRoom',
 
   components: {
     DynamicHeadline,
+    ChatMessage,
   },
 
   props: {
