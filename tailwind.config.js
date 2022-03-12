@@ -4,6 +4,12 @@ module.exports = {
   content: ['./src/**/*.{html,js}'],
   theme: {
     extend: {
+      fontSize: {
+        '2xs': ['0.7rem', '1rem'],
+      },
+      spacing: {
+        0.75: '0.2rem',
+      },
       width: {
         160: '40rem',
       },
