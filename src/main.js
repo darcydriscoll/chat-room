@@ -7,6 +7,7 @@ import VueSkipTo from '@vue-a11y/skip-to';
 import '@vue-a11y/skip-to/dist/style.css';
 
 import FetchFunc from './fetch_func.js';
+import ErrorCodes from './error_func.js';
 
 // define route components
 const Home = () => import('./components/pages/SignIn.vue');
@@ -23,9 +24,13 @@ const ChatRoom = () => import('./components/pages/ChatRoom.vue');
  */
 const verifyAccess = function () {
   const url = 'api/auto_sign_in.php';
-  return FetchFunc.fetchJSON(url)
+  const eCodes = new ErrorCodes();
+  return eCodes.init()
+    .then(() => {
+      return FetchFunc.fetchJSON(url);
+    })
     .then(data => {
-      if (!data.bool && data.msg === null) {
+      if (!data.bool && data.msg === eCodes.get('USER_UNAUTHENTICATED')) {
         return { name: 'home' };
       } else if (!data.bool) {
         console.error(`An unknown error was passed from the server: ${data.msg}`);
