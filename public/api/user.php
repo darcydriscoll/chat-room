@@ -180,6 +180,52 @@
         return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
       }
     }
+
+    /**
+     * Try to retrieve a new message from the database.
+     *
+     * @param int $last_id The id of the last retrieved message.
+     *
+     * @return BoolMsg<string>|BoolMsg<ChatMessage> depending on whether there's
+     *  a new message in the database.
+     */
+    public function get_new_message() {
+      try {
+        // make sure we're signed in already
+        if (!$this->is_signed_in()) {
+          return new BoolMsg(false, $this->get_code('USER_UNAUTHENTICATED'));
+        }
+        // have we waited long enough since the previous request?
+        $timeout_s = 1;
+        $current_time = time();
+        if (isset($_SESSION['message_get_time'])) {
+          $last_time = $_SESSION['message_get_time'];
+          $_SESSION['message_get_time'] = $current_time; // update
+          if ($current_time - $last_time < $timeout_s) {
+            return new BoolMsg(false, $this->get_code('TIMEOUT'));
+          }
+        } else {
+          // first time setting the 'last time' value
+          $_SESSION['message_get_time'] = $current_time;
+        }
+        // get id of last-retrieved message
+        $last_id = null;
+        if (isset($_SESSION['last_id'])) {
+          $last_id = $_SESSION['last_id'];
+        }
+        // try getting a new message
+        $new_message = DBRegister::get_new_message($last_id);
+        if (!$new_message->bool) {
+          return new BoolMsg(false, $this->e_codes->get('NO_NEW_MESSAGES'));
+        } else {
+          $_SESSION['last_id'] = $new_message->msg->id;
+          return $new_message;
+        }
+      } catch (Exception $e) {
+        // server error
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
+      }
+    }
   }
 
  ?>

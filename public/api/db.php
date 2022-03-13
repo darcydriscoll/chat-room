@@ -49,6 +49,10 @@
     public static function add_new_message($nickname) {
       return self::$db->add_new_message($nickname);
     }
+
+    public static function get_new_message($last_id) {
+      return self::$db->get_new_message($last_id);
+    }
   }
 
   /**
@@ -104,7 +108,7 @@
         $this->conn = new mysqli($hn, $un, $pw, $db_name);
         if ($this->conn->connect_error) {
           error_log(sprintf('MySQLi connection failed: %s\n', $this->conn->connect_error));
-          throw new Exception();
+          throw new Exception(code: $this->conn->errno);
         }
       }
       return $this->conn;
@@ -136,15 +140,15 @@
       $stmt = $this->conn->prepare($query);
       if (!$stmt) {
         error_log(sprintf("Statement preparation failed: %s\n", $this->conn->error));
-        throw new Exception();
+        throw new Exception(code: $this->conn->errno);
       }
       if (!is_null($types) && !$stmt->bind_param($types, ...$vars)) {
         error_log(sprintf("Parameter binding failed: %s\n", $this->conn->error));
-        throw new Exception();
+        throw new Exception(code: $this->conn->errno);
       }
       if (!$stmt->execute()) {
-        error_log(sprintf("Statement execution failed: %s\n", $this->conn->error));
-        throw new Exception();
+        error_log(sprintf("Statement execution failed: (%d) %s\n", $this->conn->errno, $this->conn->error));
+        throw new Exception(code: $this->conn->errno);
       }
       return $stmt;
     }
@@ -157,12 +161,12 @@
       $fetch_row = $result->fetch_row();
       if (!$fetch_row) {
         error_log(sprintf('Failed to fetch rows: %s\n', $this->conn->error));
-        throw new Exception();
+        throw new Exception(code: $this->conn->errno);
       }
       $count = $fetch_row[0];
       if (!$stmt->close()) {
         error_log(sprintf('Failed to close connection: %s\n', $this->conn->error));
-        throw new Exception();
+        throw new Exception(code: $this->conn->errno);
       }
       return $count;
     }
@@ -192,13 +196,58 @@
       $message = StringFunc::sanitise_string(
         trim(file_get_contents('https://loripsum.net/api/1/medium/plaintext'))
       );
-      // add message
-      $this->prep_exec(
-        'INSERT INTO messages (id, timestamp, nickname, message)
-         VALUES (NULL, ?, ?, ?)',
-        'sss', [$date, $nickname, $message]
+      // try adding a message
+      $id = rand(0, 65500);
+      while (true) {
+        try {
+          // add message
+          $this->prep_exec(
+            'INSERT INTO messages (id, timestamp, nickname, message)
+             VALUES (?, ?, ?, ?)',
+            'isss', [$id, $date, $nickname, $message]
+          );
+        } catch (Exception $e) {
+          if ($e->getCode() === 1062) {
+            // duplicate ID - try again
+            $id = rand(0, 65535);
+            continue;
+          } else {
+            throw $e;
+          }
+        }
+        // no errors - pass through
+        break;
+      }
+      return new ChatMessage($id, $timestamp, $nickname, $message);
+    }
+
+    /**
+     * Try to retrieve a new message from the messages table.
+     *
+     * @param int $last_id The id of the last retrieved message.
+     *
+     * @return BoolMsg<null>|BoolMsg<ChatMessage> depending on whether there is
+     *  a new message to retrieve.
+     */
+    public function get_new_message($last_id) {
+      //  get all messages that don't have $last_id as id
+      $stmt = $this->prep_exec(
+        'SELECT * FROM messages
+         WHERE id != ?',
+        'i', [$last_id]
       );
-      return new ChatMessage($timestamp, $nickname, $message);
+      $result = $stmt->get_result();
+      $fetch_row = $result->fetch_row();
+      // no new message
+      if (!$fetch_row) {
+        return new BoolMsg(false, null);
+      // new message
+      } else {
+        $datetime = new DateTime($fetch_row[1], new DateTimeZone('UTC'));
+        $message = new ChatMessage($fetch_row[0], $datetime->getTimestamp(),
+          $fetch_row[2], $fetch_row[3]);
+        return new BoolMsg(true, $message);
+      }
     }
   }
 

@@ -12,7 +12,7 @@ export default class FetchFunc {
   static fetchJSON (url, init = {}) {
     return fetch(url, init)
       .then(response => {
-        console.log(`status: ${response.status} ${response.statusText}`);
+        // console.log(`status: ${response.status} ${response.statusText}`);
         return response.json();
       });
   }
