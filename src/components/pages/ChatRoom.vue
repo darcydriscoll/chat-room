@@ -3,13 +3,15 @@
     <!-- message box -->
     <section class="self-end h-full p-1.5 pr-4 pb-3 overflow-y-auto">
       <DynamicHeadline :level="headlineLevel" class="sr-only">Messages</DynamicHeadline>
-      <div class="grid auto-rows-auto content-end space-y-3 min-h-full">
-        <ChatMessage v-for="message in messages" :key="message.id"
-          :headlineLevel="headlineLevel + 1"
-          :nickname="message.nickname"
-          :timestamp="message.timestamp"
-          :message="message.msg"
-        ></ChatMessage>
+      <div class="grid auto-rows-auto content-end space-y-3 min-h-full overflow-y-hidden">
+        <TransitionGroup name="dissolve-message-up-in-dissolve-out">
+          <ChatMessage v-for="message in messages" :key="message.id"
+            :headlineLevel="headlineLevel + 1"
+            :nickname="message.nickname"
+            :timestamp="message.timestamp"
+            :message="message.msg"
+          ></ChatMessage>
+        </TransitionGroup>
       </div>
     </section>
     <!-- send message -->
@@ -95,4 +97,40 @@ export default {
 </script>
 
 <style lang="css" scoped>
+
+/** Enter: dissolve up, Leave: dissolve **/
+.dissolve-message-up-in-dissolve-out-enter-from {
+  opacity: 0;
+  transform: translateY(10rem);
+}
+
+.dissolve-message-up-in-dissolve-out-enter-active {
+  transition: opacity var(--dissolve-duration) cubic-bezier(0, 0, 0, 1.0) var(--dissolve-delay),
+    transform var(--dissolve-duration) cubic-bezier(0, 0, 0, 1.0) var(--dissolve-delay);
+  }
+
+.dissolve-message-up-in-dissolve-out-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dissolve-message-up-in-dissolve-out-leave-from {
+  opacity: 1;
+}
+
+.dissolve-message-up-in-dissolve-out-leave-active {
+  transition: opacity var(--dissolve-duration) ease var(--dissolve-delay);
+}
+
+.dissolve-message-up-in-dissolve-out-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion) {
+  .dissolve-message-up-in-dissolve-out-enter-active,
+  .dissolve-message-up-in-dissolve-out-leave-active {
+    transition: none;
+  }
+}
+
 </style>
