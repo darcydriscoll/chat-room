@@ -1,13 +1,13 @@
 <template lang="html">
   <form @submit.prevent="submitNickname" class="grid grid-cols-2">
     <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
-    <label for="username" class="sr-only">Enter your desired nickname:</label>
     <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
+      <label for="username" class="sr-only">Enter your desired nickname:</label>
       <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :disabled="!dependenciesLoaded" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
       <div class="w-16 h-8">
         <!-- TODO: replace with <Suspense> component -->
         <Transition name="formicon">
-          <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 animate-spin">
+          <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 motion-safe:animate-spin">
         </Transition>
         <Transition name="formicon">
           <img v-show="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5"
@@ -29,6 +29,8 @@
 import StringFunc from './../../string_func.js';
 import FetchFunc from './../../fetch_func.js';
 import ErrorCodes from './../../error_func.js';
+import { store as attrStore, createAttribution as createAttr }
+  from './../../attributions.js';
 
 export default {
   name: 'SignIn',
@@ -81,6 +83,11 @@ export default {
         console.error(e);
         this.setAndLogUnknownError();
       });
+    // initialise attribution store
+    attrStore.updateAttributions(
+      createAttr('Tick', 'Landan Lloyd', 'NounProject.com'),
+      createAttr('Loading', 'Leif Michelsen', 'NounProject.com')
+    );
   },
   methods: {
     /**
@@ -158,7 +165,7 @@ export default {
             this.goToChatRoom();
           } else if (data.msg === this.e_codes.get('SERVER_ERROR')) {
             this.setError(this.e_codes.get('SERVER_ERROR'));
-          } else if (data.msg !== null) {
+          } else if (data.msg !== this.e_codes.get('USER_UNAUTHENTICATED')) {
             throw new Error(`Unexpected error code passed: ${data.msg}`); // TODO:
           }
         })
@@ -185,6 +192,8 @@ export default {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         };
+        const loadingDelay = 250;
+        const successDelay = 250;
         // execute POST request
         FetchFunc.fetchJSON(url, init)
           .then(data => {
@@ -197,9 +206,9 @@ export default {
                 this.nickApproved = true;
                 setTimeout(() => {
                   this.goToChatRoom();
-                }, 750);
+                }, successDelay);
               }
-            }, 250, data);
+            }, loadingDelay, data);
           })
           .catch(e => {
             this.setAndLogUnknownError(e);
@@ -264,5 +273,14 @@ export default {
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
+  }
+
+  @media (prefers-reduced-motion) {
+    .formicon-enter-active,
+    .formicon-leave-active,
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: none;
+    }
   }
 </style>

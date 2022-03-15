@@ -1,6 +1,6 @@
 <template>
   <header class="p-2">
-    <h1 class="text-2xl xl:text-3xl font-chat-heading font-medium tracking-normal select-none"><a href="#" class="hover:underline"><span class="text-pink-400">C</span><span class="text-green-300">h</span><span class="text-blue-400">a</span><span class="text-yellow-400">t</span> <span class="text-pink-400">R</span><span class="text-green-300">o</span><span class="text-blue-400">o</span><span class="text-yellow-400">m</span></a></h1>
+    <h1 class="text-2xl md:text-3xl font-chat-heading font-medium tracking-normal select-none"><a href="#" class="hover:underline"><span class="text-pink-400">C</span><span class="text-green-300">h</span><span class="text-blue-400">a</span><span class="text-yellow-400">t</span> <span class="text-pink-400">R</span><span class="text-green-300">o</span><span class="text-blue-400">o</span><span class="text-yellow-400">m</span></a></h1>
   </header>
 </template>
 

@@ -9,31 +9,7 @@
   require_once 'session.php';
   require_once 'db.php';
   require_once 'error_codes.php';
-
-  /**
-   * Represents a boolean value associated with a message explaining it.
-   *
-   * We pass these through to the client-side.
-   */
-  class BoolMsg {
-    public $bool;
-    public $msg;
-
-    public function __construct($bool, $msg) {
-      $this->bool = $bool;
-      $this->msg = $msg;
-    }
-
-    /**
-     * Encode the given BoolMsg in JSON format.
-     *
-     * @param BoolMsg $bool_msg The BoolMsg we want to encode.
-     */
-    public static function encode_json($bool_msg) {
-      $arr = array('bool' => $bool_msg->bool, 'msg' => $bool_msg->msg);
-      return json_encode($arr);
-    }
-  }
+  require_once 'bool_msg.php';
 
   /**
    * Represents and manages an account in the database.
@@ -145,7 +121,7 @@
         if ($this->is_signed_in()) {
           return new BoolMsg(true, $this->get_code('NICK_ALREADYSIGNEDIN'));
         } else {
-          return new BoolMsg(false, null);
+          return new BoolMsg(false, $this->get_code('USER_UNAUTHENTICATED'));
         }
       } catch (Exception $e) {
         // server error
@@ -182,6 +158,73 @@
       // add nickname
       SessionRegister::set('nickname', $nickname);
       return new BoolMsg(true, $this->get_code('NICK_SUCCESS'));
+    }
+
+    /**
+     * Generate a message and return it.
+     *
+     * @return BoolMsg<ChatMessage>|BoolMsg<String> depending on whether the
+     *  message generation succeeds.
+     */
+    public function generate_message() {
+      try {
+        // make sure we're signed in already
+        if (!$this->is_signed_in()) {
+          return new BoolMsg(false, $this->get_code('USER_UNAUTHENTICATED'));
+        }
+        // try adding a message
+        $message = DBRegister::add_new_message($this->get_nickname());
+        return new BoolMsg(true, $message);
+      } catch (Exception $e) {
+        // server error
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
+      }
+    }
+
+    /**
+     * Try to retrieve a new message from the database.
+     *
+     * @param int $last_id The id of the last retrieved message.
+     *
+     * @return BoolMsg<string>|BoolMsg<ChatMessage> depending on whether there's
+     *  a new message in the database.
+     */
+    public function get_new_message() {
+      try {
+        // make sure we're signed in already
+        if (!$this->is_signed_in()) {
+          return new BoolMsg(false, $this->get_code('USER_UNAUTHENTICATED'));
+        }
+        // have we waited long enough since the previous request?
+        $timeout_s = 1;
+        $current_time = time();
+        if (isset($_SESSION['message_get_time'])) {
+          $last_time = $_SESSION['message_get_time'];
+          $_SESSION['message_get_time'] = $current_time; // update
+          if ($current_time - $last_time < $timeout_s) {
+            return new BoolMsg(false, $this->get_code('TIMEOUT'));
+          }
+        } else {
+          // first time setting the 'last time' value
+          $_SESSION['message_get_time'] = $current_time;
+        }
+        // get id of last-retrieved message
+        $last_id = null;
+        if (isset($_SESSION['last_id'])) {
+          $last_id = $_SESSION['last_id'];
+        }
+        // try getting a new message
+        $new_message = DBRegister::get_new_message($last_id);
+        if (!$new_message->bool) {
+          return new BoolMsg(false, $this->e_codes->get('NO_NEW_MESSAGES'));
+        } else {
+          $_SESSION['last_id'] = $new_message->msg->id;
+          return $new_message;
+        }
+      } catch (Exception $e) {
+        // server error
+        return new BoolMsg(false, $this->get_code('SERVER_ERROR'));
+      }
     }
   }
 

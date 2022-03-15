@@ -1,7 +1,7 @@
 <template>
-  <div class="h-screen grid grid-cols-1 grid-rows-3">
+  <div class="h-screen grid grid-cols-1" style="grid-template-rows: auto minmax(0, 1fr) auto;">
     <Header class="self-start"/>
-    <main class="self-center mx-4">
+    <main id="main" class="self-center h-full flex flex-col justify-center">
       <slot></slot>
     </main>
     <Footer class="self-end"/>
