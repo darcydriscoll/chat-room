@@ -209,7 +209,7 @@
           $_SESSION['message_get_time'] = $current_time;
         }
         // get id of last-retrieved message
-        $last_id = null;
+        $last_id = 'null';
         if (isset($_SESSION['last_id'])) {
           $last_id = $_SESSION['last_id'];
         }

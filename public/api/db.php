@@ -230,7 +230,7 @@
      *  a new message to retrieve.
      */
     public function get_new_message($last_id) {
-      //  get all messages that don't have $last_id as id
+      // get all messages that don't have $last_id as id
       $stmt = $this->prep_exec(
         'SELECT * FROM messages
          WHERE id != ?',
