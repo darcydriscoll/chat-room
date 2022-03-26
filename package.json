@@ -81,6 +81,9 @@
             "DynamicHeadline"
           ]
         }
+      ],
+      "vuejs-accessibility/no-redundant-roles": [
+        "warn"
       ]
     }
   },

@@ -15,14 +15,14 @@
       </div>
     </section>
     <!-- send message -->
-    <form @submit.prevent="" class="border-t-2 border-blue-300 grid" style="grid-template-columns: minmax(0, 1fr) auto">
+    <form @submit.prevent="" class="border-t-2 border-blue-300 grid gap-x-0.75" style="grid-template-columns: minmax(0, 1fr) auto">
       <!-- TODO: sr-only - change to something togglable for hard-of-sight people??? -->
       <!-- Message box -->
       <label for="chatbox-message" class="sr-only">Type your message</label>
-      <input id="chatbox-message" type="message" name="message" placeholder="Type your message..." class="self-center px-3 w-full h-full rounded-bl-md" value="">
+      <input id="chatbox-message" type="message" name="message" placeholder="Type your message..." class="self-center px-3 w-full h-full focus:outline-none focus:ring focus:ring-blue-600 rounded-bl-md" value="">
       <!-- Submit button -->
       <label for="chatbox-submit" class="sr-only">Submit your message</label>
-      <input id="chatbox-submit" type="submit" name="submit" value=" " aria-label="Send message" class="self-center justify-self-end w-14 h-14 rounded-br bg-no-repeat bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 bg-submit-msg bg-50% bg-center-l-offset">
+      <input id="chatbox-submit" type="submit" name="submit" value=" " aria-label="Send message" class="self-center justify-self-end w-14 h-14 focus:outline-none focus:ring focus:ring-blue-600 rounded-br bg-no-repeat bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 bg-submit-msg bg-50% bg-center-l-offset">
     </form>
   </div>
 </template>

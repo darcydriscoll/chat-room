@@ -25,6 +25,9 @@ module.exports = {
       },
       backgroundImage: {
         'submit-msg': 'url("/img/icons/send-message.png")',
+        'loading-spinner': 'url("/img/icons/loading.png")',
+        'loading-motion-reduce': 'url("/img/icons/loading-motion-reduced.png")',
+        'check-mark': 'url("/img/icons/tick.png")',
       },
       backgroundSize: {
         '50%': '50%',
@@ -37,8 +40,13 @@ module.exports = {
   variants: {
     extend: {
       backgroundColor: ['disabled'],
+      backgroundImage: ['motion-reduce'],
       cursor: ['hover', 'disabled'],
       animation: ['motion-safe'],
+      borderWidth: ['focus'],
+      ringWidth: ['focus-visible'],
+      ringOffsetWidth: ['focus-visible'],
+      ringColor: ['focus-visible'],
     },
   },
   plugins: [],

@@ -3,20 +3,21 @@
     <h2 class="text-2xl xl:text-3xl text-center col-span-2 mb-10 font-chat-heading tracking-tight select-none">Enter a nickname <br>to start chatting</h2>
     <div class="relative max-w-xs m-auto col-span-2 grid grid-cols-2-auto auto-rows-min">
       <label for="username" class="sr-only">Enter your desired nickname:</label>
-      <input type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :disabled="!dependenciesLoaded" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-300`">
+      <input ref="nickInput" type="text" @input="updateNickname" v-model="nickname" name="nickname" id="username" required autocomplete="nickname" placeholder="e.g. snarlinger" :disabled="!dependenciesLoaded" :class="`w-${inputWidth} self-center xl:text-lg border-b-2 border-blue-300 font-chat-body px-1 py-0.5 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-600 focus:ring-offset-2`">
       <div class="w-16 h-8">
         <!-- TODO: replace with <Suspense> component -->
         <Transition name="formicon">
-          <img v-show="submittingNick" src="img/icons/loading.png" alt="Loading icon" class="w-8 select-none absolute ml-5 motion-safe:animate-spin">
+          <ProgressBar ref="signInProgress" v-show="isProgressBarVisible" class="w-8 h-full select-none absolute ml-5"
+            id="loading"
+            :value="loadingValue"
+            :loading="submittingNick"
+            :loaded="nickApproved"
+          />
         </Transition>
-        <Transition name="formicon">
-          <img v-show="nickApproved" src="img/icons/tick.png" alt="Nickname approved icon" class="w-8 select-none absolute ml-5"
-               style="filter: brightness(0) saturate(100%) invert(56%) sepia(97%) saturate(375%) hue-rotate(66deg) brightness(99%) contrast(96%);">
-        </Transition>
-        <input v-show="!submittingNick && !nickApproved" type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-400 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-pink-200 hover:cursor-pointer disabled:cursor-not-allowed">
+        <input v-show="!submittingNick && !nickApproved" type="submit" name="submit" value="Go" :disabled="!isNicknameValid" class="transform -translate-y-1/2 top-1/2 absolute p-1 justify-self-start self-start px-4 ml-2 text-lg xl:text-xl text-center rounded font-chat-body bg-pink-600 disabled:bg-pink-200 hover:bg-pink-500 focus:bg-pink-500 text-white tracking-tight focus:outline-none focus:ring focus:ring-blue-600 hover:cursor-pointer disabled:cursor-not-allowed">
       </div>
       <!-- Accessible form errors -->
-      <ul role="alert" aria-relevant="all" :class="`absolute w-${inputWidth} top-10 select-none space-y-2`">
+      <ul :class="`absolute w-${inputWidth} top-10 select-none space-y-2`">
         <transition name="fade">
           <li v-if="isErrorVisible">{{ errorMsg }}</li>
         </transition>
@@ -32,8 +33,13 @@ import ErrorCodes from './../../error_func.js';
 import { store as attrStore, createAttribution as createAttr }
   from './../../attributions.js';
 
+import ProgressBar from './../ProgressBar.vue';
+
 export default {
   name: 'SignIn',
+  components: {
+    ProgressBar,
+  },
   data: function () {
     return {
       // loading state
@@ -202,6 +208,7 @@ export default {
               this.submittingNick = false;
               if (!d.bool) {
                 this.setError(d.msg);
+                this.$refs.nickInput.focus();
               } else {
                 this.nickApproved = true;
                 setTimeout(() => {
@@ -221,7 +228,7 @@ export default {
   },
   watch: {
     /**
-     * When errorID is changed, update errorMsg to match.
+     * When errorID is changed, update error message to match.
      *
      * We don't do this through a computed property, because we can't always
      * return a new value for the current error message. When the error message
@@ -233,6 +240,13 @@ export default {
     errorID (newID) {
       if (newID !== null) {
         this.errorMsg = this.errorMsgs[this.errorID];
+        this.$announcer.polite(this.errorMsg);
+      }
+    },
+
+    submittingNick (newValue) {
+      if (newValue) {
+        this.$refs.signInProgress.focusProgress();
       }
     },
   },
@@ -249,6 +263,20 @@ export default {
      */
     isErrorVisible () {
       return this.errorID !== null;
+    },
+
+    /**
+     * Returns whether the progress bar should be visible.
+     */
+    isProgressBarVisible () {
+      return this.submittingNick || this.nickApproved;
+    },
+
+    /**
+     * Returns the current value of the progress bar.
+     */
+    loadingValue () {
+      return this.nickApproved ? 1 : 0;
     },
   },
 };
