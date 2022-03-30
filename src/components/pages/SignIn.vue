@@ -92,7 +92,8 @@ export default {
     // initialise attribution store
     attrStore.updateAttributions(
       createAttr('Tick', 'Landan Lloyd', 'NounProject.com'),
-      createAttr('Loading', 'Leif Michelsen', 'NounProject.com')
+      createAttr('Loading spinner', 'Leif Michelsen', 'NounProject.com'),
+      createAttr('Loading hourglass', 'Icons Producer', 'NounProject.com')
     );
   },
   methods: {
